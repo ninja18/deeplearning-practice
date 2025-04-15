@@ -9,6 +9,7 @@ matplotlib = "*"
 torchvision = "*"
 torchaudio = "*"
 torch = "*"
+early-stopping-pytorch = "*"
 
 [dev-packages]
 
