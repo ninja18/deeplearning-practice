@@ -9,6 +9,9 @@ dependencies = [
     "torchaudio",
     "torch",
     "early-stopping-pytorch",
+    "datasets>=4.4.1",
+    "jupyter>=1.1.1",
+    "notebook>=7.5.1",
 ]
 
 [dependency-groups]
