@@ -1,0 +1,33 @@
+{
+    "train_losses": [
+        4.207955118317961,
+        3.389028692560574,
+        3.0623573831524618,
+        2.815923441349147,
+        2.61128247676967,
+        2.419813190262748,
+        2.240582420174771,
+        2.0635891365059673,
+        1.8957399970109243,
+        1.7356992616002256,
+        1.5783018204609203
+    ],
+    "val_losses": [
+        3.522017017006874,
+        3.1889032125473022,
+        2.9445661455392838,
+        2.7916336208581924,
+        2.683342456817627,
+        2.6211796551942825,
+        2.5467885732650757,
+        2.5194919407367706,
+        2.530397906899452,
+        2.5400298088788986,
+        2.570854216814041
+    ],
+    "batch_size": 64,
+    "learning_rate": 0.0005,
+    "epochs": 15,
+    "model": "Seq2Seq(\n  (encoder): Encoder(\n    (embedding): Embedding(5422, 512, padding_idx=0)\n    (lstm): LSTM(512, 512, num_layers=2, batch_first=True, bidirectional=True)\n    (hidden_projection): Linear(in_features=1024, out_features=512, bias=True)\n    (cell_projection): Linear(in_features=1024, out_features=512, bias=True)\n  )\n  (decoder): Decoder(\n    (embedding): Embedding(4560, 512, padding_idx=0)\n    (lstm): LSTM(512, 512, num_layers=2, batch_first=True)\n    (encoder_hidden_projection): Linear(in_features=1024, out_features=512, bias=True)\n    (encoder_cell_projection): Linear(in_features=1024, out_features=512, bias=True)\n    (output_projection): Linear(in_features=512, out_features=4560, bias=True)\n  )\n)",
+    "model_path": "/content/drive/My Drive/ML study/Attentions/additive attention/additive-attention-de-en-translator-basic-model.pt"
+}
