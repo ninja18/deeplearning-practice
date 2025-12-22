@@ -25,6 +25,10 @@ def show_graph(train_losses, val_losses, save_path=None, save=False):
     if save and save_path:
         fig.savefig(save_path)
 
+def batch_to_device(batch, device):
+    return {k: v.to(device, non_blocking=True) if isinstance(v, torch.Tensor) else v
+     for k, v in batch.items()}
+
 def epoch_time(start_time, end_time):
     elapsed_time = end_time - start_time
     minutes = int(elapsed_time / 60)
