@@ -46,7 +46,7 @@ def train(model, loader, criterion, optimizer, max_grad_norm, device):
         batch = batch_to_device(batch, device)
         optimizer.zero_grad()
 
-        logits_all, preds_all, _ = model(batch["source"], batch["source_lengths"], batch["target"])
+        logits_all, _, _ = model(batch["source"], batch["source_lengths"], batch["target"])
         target = batch["target"][:, 1:].reshape(-1)
 
         loss = criterion(logits_all.reshape(-1, logits_all.shape[-1]), target)
@@ -66,7 +66,7 @@ def validate(model, loader, criterion, device):
     epoch_loss = 0
     for batch in loader:
         batch = batch_to_device(batch, device)
-        logits_all, preds_all, _ = model(batch["source"], batch["source_lengths"], batch["target"])
+        logits_all, _, _ = model(batch["source"], batch["source_lengths"], batch["target"])
         target = batch["target"][:, 1:].reshape(-1)
 
         loss = criterion(logits_all.reshape(-1, logits_all.shape[-1]), target)
