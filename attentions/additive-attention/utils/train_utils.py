@@ -38,3 +38,38 @@ def epoch_time(start_time, end_time):
 def load_model(model, model_path, device):
     model.load_state_dict(torch.load(model_path, map_location=device))
     return model
+
+def train(model, loader, criterion, optimizer, max_grad_norm, device):
+    model.train()
+    epoch_loss = 0
+    for batch in loader:
+        batch = batch_to_device(batch, device)
+        optimizer.zero_grad()
+
+        logits_all, preds_all, _ = model(batch["source"], batch["source_lengths"], batch["target"])
+        target = batch["target"][:, 1:].reshape(-1)
+
+        loss = criterion(logits_all.reshape(-1, logits_all.shape[-1]), target)
+        loss.backward()
+
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=max_grad_norm)
+
+        optimizer.step()
+
+        epoch_loss += loss.item()
+
+    return epoch_loss / len(loader)
+
+@torch.no_grad()
+def validate(model, loader, criterion, device):
+    model.eval()
+    epoch_loss = 0
+    for batch in loader:
+        batch = batch_to_device(batch, device)
+        logits_all, preds_all, _ = model(batch["source"], batch["source_lengths"], batch["target"])
+        target = batch["target"][:, 1:].reshape(-1)
+
+        loss = criterion(logits_all.reshape(-1, logits_all.shape[-1]), target)
+        epoch_loss += loss.item()
+
+    return epoch_loss / len(loader)
