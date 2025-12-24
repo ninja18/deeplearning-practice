@@ -73,9 +73,18 @@ def encode(token_to_index, text):
 
 
 def decode(index_to_token, indices):
-    return " ".join(
-        remove_special_tokens([index_to_token.get(index, UNK) for index in indices])
-    )
+    return " ".join(decode_tokens(index_to_token, indices))
+
+
+def decode_tokens(index_to_token, indices):
+    tokens = [index_to_token.get(index, UNK) for index in indices]
+    tokens = [token for token in tokens if token not in [PAD]]
+    for i, token in enumerate(tokens):
+        if token == EOS:
+            tokens = tokens[:i+1]
+            break
+    return tokens
+
 
 
 def pad_batch(sequences, pad_idx=0):
