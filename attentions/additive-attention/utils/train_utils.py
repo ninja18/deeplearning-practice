@@ -18,7 +18,6 @@ def save_artifacts(
     epochs,
     artifacts_path,
     model_path,
-    initial_teacher_forcing_ratio,
     max_grad_norm,
 ):
     with open(artifacts_path, "w") as f:
