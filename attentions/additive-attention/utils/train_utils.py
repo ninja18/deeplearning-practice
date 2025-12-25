@@ -13,6 +13,8 @@ def save_artifacts(
     epochs,
     artifacts_path,
     model_path,
+    initial_teacher_forcing_ratio,
+    max_grad_norm,
 ):
     with open(artifacts_path, "w") as f:
         artifacts = {
@@ -23,6 +25,8 @@ def save_artifacts(
             "epochs": epochs,
             "model": str(model),
             "model_path": model_path,
+            "initial_teacher_forcing_ratio": initial_teacher_forcing_ratio,
+            "max_grad_norm": max_grad_norm,
         }
         json.dump(artifacts, f)
 

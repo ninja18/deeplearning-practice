@@ -77,13 +77,10 @@ def decode(index_to_token, indices):
 
 
 def decode_tokens(index_to_token, indices):
-    tokens = [index_to_token.get(index, UNK) for index in indices]
-    tokens = [token for token in tokens if token not in [PAD]]
-    for i, token in enumerate(tokens):
-        if token == EOS:
-            tokens = tokens[:i+1]
-            break
-    return tokens
+    for i, index in enumerate(indices):
+        if index_to_token.get(index) == EOS:
+            return [index_to_token.get(index, UNK) for index in indices[:i]]
+    return [index_to_token.get(index, UNK) for index in indices]
 
 
 
