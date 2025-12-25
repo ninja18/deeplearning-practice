@@ -73,7 +73,7 @@ def encode(token_to_index, text):
 
 
 def decode(index_to_token, indices):
-    return " ".join(decode_tokens(index_to_token, indices))
+    return " ".join(remove_special_tokens(decode_tokens(index_to_token, indices)))
 
 
 def decode_tokens(index_to_token, indices):

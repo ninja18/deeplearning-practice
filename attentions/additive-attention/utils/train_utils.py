@@ -1,13 +1,18 @@
 import json
+import math
 import torch
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from torchmetrics.text import BLEUScore
+from utils.multi30k_data_processing_utils import decode
 
 
 def save_artifacts(
     model,
     train_losses,
     val_losses,
+    val_bleu_scores,
+    teacher_forcing_ratios,
     batch_size,
     learning_rate,
     epochs,
@@ -20,27 +25,43 @@ def save_artifacts(
         artifacts = {
             "train_losses": train_losses,
             "val_losses": val_losses,
+         'val_bleu_scores': val_bleu_scores,
+         'teacher_forcing_ratios': teacher_forcing_ratios,
             "batch_size": batch_size,
             "learning_rate": learning_rate,
             "epochs": epochs,
             "model": str(model),
             "model_path": model_path,
-            "initial_teacher_forcing_ratio": initial_teacher_forcing_ratio,
             "max_grad_norm": max_grad_norm,
         }
         json.dump(artifacts, f)
 
 
-def show_graph(train_losses, val_losses, save_path=None, save=False):
-    fig, ax1 = plt.subplots(figsize=(10, 8))
-    ax1.plot(train_losses, label="Training loss")
-    ax1.plot(val_losses, label="Validation loss")
+def show_graph(train_losses, val_losses, val_bleu_scores, save_path=None, save=False):
+    fig, (ax1, ax2) = plt.subplots(nrows=1, ncols=2, figsize=(10, 4))
+    ax1.plot(train_losses, label='Training loss')
+    ax1.plot(val_losses, label='Validation loss')
     ax1.legend()
     ax1.set_title("Loss over epochs")
+
+    ax2.plot(val_bleu_scores, label='Validation BLEU')
+    ax2.legend()
+    ax2.set_title("BLEU over epochs")
     fig.show()
     if save and save_path:
         fig.savefig(save_path)
 
+def inverse_sigmoid_decay(step, k=8):
+    """
+    Calculates the teacher forcing ratio using inverse sigmoid decay.
+    Formula: k / (k + exp(step / k))
+
+    Args:
+        step: Current epoch or iteration number (0-indexed).
+        k: Decay constant. Larger k means slower decay.
+    """
+    ratio = k / (k + math.exp(step / k))
+    return round(ratio, 2)
 
 def batch_to_device(batch, device):
     return {
@@ -61,15 +82,15 @@ def load_model(model, model_path, device):
     return model
 
 
-def train(model, loader, criterion, optimizer, max_grad_norm, device):
+def train(model, loader, criterion, optimizer, max_grad_norm, teacher_forcing_ratio, device):
     model.train()
     epoch_loss = 0
     for batch in loader:
         batch = batch_to_device(batch, device)
         optimizer.zero_grad()
 
-        logits_all, _, _ = model(
-            batch["source"], batch["source_lengths"], batch["target"]
+        logits_all = model(
+            batch["source"], batch["source_lengths"], batch["target"], teacher_forcing_ratio=teacher_forcing_ratio
         )
         target = batch["target"][:, 1:].reshape(-1)
 
@@ -86,13 +107,13 @@ def train(model, loader, criterion, optimizer, max_grad_norm, device):
 
 
 @torch.no_grad()
-def validate(model, loader, criterion, device):
+def validate_with_teacher_forcing(model, loader, criterion, device):
     model.eval()
     epoch_loss = 0
     for batch in loader:
         batch = batch_to_device(batch, device)
-        logits_all, _, _ = model(
-            batch["source"], batch["source_lengths"], batch["target"]
+        logits_all = model(
+            batch["source"], batch["source_lengths"], batch["target"], teacher_forcing_ratio=1.0
         )
         target = batch["target"][:, 1:].reshape(-1)
 
@@ -101,6 +122,32 @@ def validate(model, loader, criterion, device):
 
     return epoch_loss / len(loader)
 
+
+@torch.no_grad()
+def validate_with_bleu_score(model, loader, index_to_vocab, device):
+    model.eval()
+    metric = BLEUScore()
+
+    preds_text = []
+    targets_text = []
+
+    for batch in loader:
+        batch = batch_to_device(batch, device)
+        src = batch["source"]
+        src_lengths = batch["source_lengths"]
+        trg = batch["target"]
+
+        prediction, _ = model.generate(src, src_lengths)
+
+        for i in range(src.shape[0]):
+            target_str = decode(index_to_vocab, trg[i].tolist())
+            targets_text.append([target_str]) # Expects list of references per sample
+
+            pred_str = decode(index_to_vocab, prediction[i].tolist())
+            preds_text.append(pred_str)
+
+    score = metric(preds_text, targets_text)
+    return score.item()
 
 def display_attention(sentence, translation, attention, n_cols=2, figure_size=(10, 10)):
     """
