@@ -29,5 +29,5 @@
     "learning_rate": 0.0005,
     "epochs": 15,
     "model": "Seq2Seq(\n  (encoder): Encoder(\n    (embedding): Embedding(5422, 512, padding_idx=0)\n    (lstm): LSTM(512, 512, num_layers=2, batch_first=True, bidirectional=True)\n    (hidden_projection): Linear(in_features=1024, out_features=512, bias=True)\n    (cell_projection): Linear(in_features=1024, out_features=512, bias=True)\n  )\n  (decoder): Decoder(\n    (embedding): Embedding(4560, 512, padding_idx=0)\n    (lstm): LSTM(512, 512, num_layers=2, batch_first=True)\n    (encoder_hidden_projection): Linear(in_features=1024, out_features=512, bias=True)\n    (encoder_cell_projection): Linear(in_features=1024, out_features=512, bias=True)\n    (output_projection): Linear(in_features=512, out_features=4560, bias=True)\n  )\n)",
-    "model_path": "/content/drive/My Drive/ML study/Attentions/additive attention/additive-attention-de-en-translator-basic-model.pt"
+    "model_path": "/content/drive/My Drive/ML/Attentions/additive attention/additive-attention-de-en-translator-basic-model.pt"
 }
