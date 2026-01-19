@@ -39,3 +39,4 @@ ipython_config.py
 .ruff_cache/
 pyrightconfig.json
 attentions/additive-attention/weights
+attentions/luong-attention/weights
